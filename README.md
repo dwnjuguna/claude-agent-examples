@@ -1,22 +1,63 @@
-# ☕🌤️ Starbucks Finder + Weather Agent
+# ☕🌤️ Claude AI Agent Examples
 
-A combined AI agent built with Python and the Anthropic SDK that finds nearby Starbucks locations **and** fetches live weather data for any city — all in a single run.
+A collection of AI agents built with Python and the Anthropic SDK. Each agent uses real tools to fetch live data — no fake results.
 
 ---
 
-## What It Does
+## Examples
 
-Ask the agent about a city and it will:
-- ☕ Find nearby Starbucks locations with addresses and opening hours
-- 🌤️ Fetch the current live weather (temperature, wind speed, conditions)
-- 📋 Combine both results into a single, clean response
+| File | Description |
+|------|-------------|
+| `agent.py` | General web search agent using DuckDuckGo |
+| `starbucks_agent.py` | Finds nearby Starbucks locations for a fixed city |
+| `weather_agent.py` | Fetches live weather for a fixed city |
+| `starbucks_weather_agent.py` | Combined Starbucks + weather agent for a fixed city |
+| `interactive_agent.py` | ⭐ Full interactive agent — type any city and get real Starbucks locations and live weather instantly |
+
+---
+
+## ⭐ Featured: Interactive Agent
+
+The interactive agent is the most complete example. It lets you type any city directly in the Terminal and instantly returns:
+
+- ☕ Up to 5 nearby Starbucks locations with real addresses, phone numbers, ratings, and live open/closed status
+- 🌤️ Current weather including temperature, wind speed, and conditions
+
+### Example Output
+
+```
+You: Palo Alto, California
+
+🔧 Looking up find nearby starbucks...
+🔧 Looking up get weather...
+
+## ☕ Nearby Starbucks Locations
+
+| # | Name                     | Address                        | Rating         | Phone          | Open Now |
+|---|--------------------------|--------------------------------|----------------|----------------|----------|
+| 1 | Starbucks Coffee Company | 151 University Ave, Palo Alto  | ⭐ 4.1 (702)   | +1 650-322-6684 | ✅ Yes  |
+| 2 | Starbucks Coffee Company | 2190 W Bayshore Rd, Palo Alto  | ⭐ 4.1 (393)   | +1 650-739-0373 | ✅ Yes  |
+| 3 | Starbucks Coffee Company | 2000 El Camino Real, Palo Alto | ⭐ 3.7 (570)   | +1 650-320-8125 | ✅ Yes  |
+
+## 🌤️ Current Weather in Palo Alto
+
+| Condition      | Value            |
+|----------------|------------------|
+| Temperature    | 81°F             |
+| Wind Speed     | 5.1 mph          |
+| Conditions     | Overcast / Cloudy |
+| Time of Day    | Daytime ☀️       |
+```
 
 ---
 
 ## Prerequisites
 
 - Python 3.10+
-- An [Anthropic API key](https://console.anthropic.com)
+- [Anthropic API key](https://console.anthropic.com)
+- [Google Cloud API key](https://console.cloud.google.com) with these APIs enabled:
+  - Places API
+  - Geocoding API
 
 ---
 
@@ -28,71 +69,74 @@ Ask the agent about a city and it will:
 pip3 install anthropic ddgs certifi
 ```
 
-### 2. Set your API key
-
-Replace `your-key-here` with your actual Anthropic API key:
+### 2. Fix SSL certificates (Mac only)
 
 ```bash
-export ANTHROPIC_API_KEY="your-key-here"
+/Applications/Python\ 3.X/Install\ Certificates.command
+```
+Replace `3.X` with your Python version (e.g. `3.14`).
+
+### 3. Set your API keys
+
+```bash
+export ANTHROPIC_API_KEY="your-anthropic-key-here"
+export GOOGLE_PLACES_API_KEY="your-google-key-here"
 ```
 
 ---
 
-## Usage
+## Running the Agents
 
-### Run the agent
+### Interactive agent (recommended)
+```bash
+python3 interactive_agent.py
+```
 
+### Combined Starbucks + weather (fixed city)
 ```bash
 python3 starbucks_weather_agent.py
 ```
 
-### Example Output
-
-```
-User: Find me the nearest Starbucks locations with opening hours in San Francisco, California, and also tell me the current weather there.
-
-🔧 Claude is using tool: find_nearby_starbucks with input: {'location': 'San Francisco, California'}
-🔧 Claude is using tool: get_weather with input: {'city': 'San Francisco'}
-
-Claude:
-## Current Weather in San Francisco
-| Condition      | Value         |
-|----------------|---------------|
-| 🌡️ Temperature | 80.2°F        |
-| 💨 Wind Speed  | 2.2 mph       |
-| ☁️ Conditions  | Partly cloudy |
-| 🌞 Daytime     | Yes           |
-
-## Starbucks Locations in San Francisco
-San Francisco has 64 Starbucks locations...
+### Starbucks only
+```bash
+python3 starbucks_agent.py
 ```
 
-### Change the city
+### Weather only
+```bash
+python3 weather_agent.py
+```
 
-To search a different city, update the last line of `starbucks_weather_agent.py`:
-
-```python
-run_agent("Find me the nearest Starbucks locations with opening hours in Austin, Texas, and also tell me the current weather there.")
+### General web search
+```bash
+python3 agent.py
 ```
 
 ---
 
 ## How It Works
 
-The agent uses two tools running in a single loop:
+Every agent follows the same simple loop:
 
-| Tool | Description | API Used |
-|------|-------------|----------|
-| `find_nearby_starbucks` | Searches for Starbucks locations and hours | DuckDuckGo (free) |
-| `get_weather` | Fetches live weather data | Open-Meteo (free, no key needed) |
+```
+User sends a message
+       ↓
+Claude decides which tools to call
+       ↓
+Your code runs the tools and returns real data
+       ↓
+Claude reads the results and formats a response
+       ↓
+Loop ends when Claude is done
+```
 
-### Agent Loop
+### Tools Used
 
-1. User sends a message
-2. Claude decides which tools to call
-3. Your code runs the tools and returns real data
-4. Claude reads the results and combines them into one response
-5. Loop ends when Claude is done
+| Tool | API | Cost |
+|------|-----|------|
+| Web search | DuckDuckGo (`ddgs`) | Free |
+| Starbucks finder | Google Places API | Free tier ($200/month credit) |
+| Weather | Open-Meteo | Free, no key needed |
 
 ---
 
@@ -101,9 +145,13 @@ The agent uses two tools running in a single loop:
 ```
 claude-agent-examples/
 │
-├── starbucks_weather_agent.py   # Combined Starbucks + Weather agent
+├── interactive_agent.py         # ⭐ Interactive Starbucks + weather agent
+├── starbucks_weather_agent.py   # Combined agent (fixed city)
 ├── starbucks_agent.py           # Starbucks finder only
 ├── weather_agent.py             # Weather only
+├── agent.py                     # General web search agent
+├── SETUP.md                     # Detailed setup guide
+├── .gitignore                   # Prevents API keys from being uploaded
 └── README.md                    # This file
 ```
 
@@ -111,29 +159,14 @@ claude-agent-examples/
 
 ## Troubleshooting
 
-### SSL Certificate Error on Mac
-If you see `SSL: CERTIFICATE_VERIFY_FAILED`, run:
-```bash
-/Applications/Python\ 3.X/Install\ Certificates.command
-```
-Replace `3.X` with your Python version (e.g. `3.14`).
-
-### `ddgs` package warning
-If you see a warning about `duckduckgo_search` being renamed, make sure you have the correct package installed:
-```bash
-pip3 install ddgs
-```
-
----
-
-## Dependencies
-
-| Package | Purpose | Cost |
-|---------|---------|------|
-| `anthropic` | Claude AI SDK | Paid (per API call) |
-| `ddgs` | DuckDuckGo web search | Free |
-| `certifi` | SSL certificates for Mac | Free |
-| Open-Meteo | Live weather API (built-in, no install needed) | Free |
+| Error | Fix |
+|-------|-----|
+| `command not found: pip` | Use `pip3` instead |
+| `SSL: CERTIFICATE_VERIFY_FAILED` | Run the Install Certificates command above |
+| `REQUEST_DENIED` from Google | Enable the Geocoding API and Places API in Google Cloud Console |
+| `ModuleNotFoundError: ddgs` | Run `pip3 install ddgs` |
+| `AuthenticationError` | Check your `ANTHROPIC_API_KEY` is set correctly |
+| Agent asks questions instead of searching | Make sure you are running the latest `interactive_agent.py` |
 
 ---
 
@@ -142,4 +175,5 @@ pip3 install ddgs
 - [Anthropic Documentation](https://docs.anthropic.com)
 - [Anthropic API Console](https://console.anthropic.com)
 - [Tool Use Guide](https://docs.anthropic.com/en/docs/build-with-claude/tool-use)
+- [Google Cloud Console](https://console.cloud.google.com)
 - [Open-Meteo Weather API](https://open-meteo.com)
